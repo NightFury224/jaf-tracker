@@ -59,7 +59,7 @@ function trackerHTML(){
   if(!DATA["JAF Tracker"]) return "<p class='note' style='padding:16px'>Loading the tracker...</p>";
   var rule=function(a){var v=cell("JAF Tracker",a);return typeof v==="number"?v:null;};
   var pref=rule("B77")||2000000, floor=rule("B78")||1200000;
-  var heads=[]; for(var c=1;c<=21;c++){ if(c===5) continue; heads.push(cell("JAF Tracker",colLetter(c)+"4")||"");}
+  var heads=[]; for(var c=1;c<=21;c++){ heads.push(cell("JAF Tracker",colLetter(c)+"4")||"");}
   var html="<table><thead><tr>"+heads.map(function(h){return "<th>"+esc(h)+"</th>";}).join("")+"</tr></thead><tbody>";
   var n=0;
   for(var r=5;r<=69;r++){
@@ -75,6 +75,7 @@ function trackerHTML(){
      "<td class='long'>"+esc(v("B"))+"</td>"+
      "<td>"+esc(v("C"))+"</td>"+
      "<td>"+chip(v("D"))+"</td>"+
+     "<td>"+chip(v("E"))+"</td>"+
      "<td>"+chip(pr)+"</td>"+
      "<td class='num'>"+(ctc==null?"":ctc.toLocaleString("en-IN"))+"</td>"+
      "<td class='num'>"+lakh+"</td>"+
