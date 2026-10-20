@@ -68,7 +68,7 @@ function trackerHTML(){
     var ctc=typeof v("G")==="number"?v("G"):null;
     var lakh=ctc==null?"":(ctc/100000).toFixed(2);
     var top=(v("D")==="Mumbai/Abroad"||v("E")==="Strong"), mid=(top||v("D")==="Maharashtra"), pr="";
-    if(ctc!=null){ pr = ctc<floor?"Skip? (below floor)":(ctc>=pref?(top?"P1":"P2"):(mid?"P2":"P3")); }
+    if(ctc!=null){ pr = (ctc>=pref&&top)?"P1":((ctc>=pref||(ctc>=floor&&mid))?"P2":"P3"); }
     var link=v("Q")?'<a href="'+esc(v("Q"))+'" target="_blank" rel="noopener">Open job</a>':"";
     html+="<tr>"+
      "<td><strong>"+esc(v("A"))+"</strong></td>"+
@@ -115,7 +115,7 @@ function render(){
   TABS.forEach(function(x,i){var b=document.createElement("button"); b.id="tab"+i; b.type="button"; b.setAttribute("role","tab"); b.setAttribute("aria-selected",i===current); b.textContent=x[0]; b.onclick=function(){current=i;render();}; t.appendChild(b);});
   document.getElementById("view").innerHTML=TABS[current][1]();
   var a2=cell("Applied (Portal)","A2")||"";
-  var note = current===0 ? "Priority and CTC in lakh are calculated from the CTC and the rules in the sheet (preferred 20 lakh, floor 12 lakh). Times are IST." : (current===1 ? "" : "A company's own page-length rule always overrides this table.");
+  var note = current===0 ? "Priority and CTC in lakh are calculated from the CTC and the rules in the sheet (1st preference 20 lakh and above, 2nd 12 lakh and above, 3rd below 12 lakh). Times are IST." : (current===1 ? "" : "A company's own page-length rule always overrides this table.");
   document.getElementById("foot").textContent = (note+" "+a2).trim();
 }
 var last=JSON.stringify(DATA);
