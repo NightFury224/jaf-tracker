@@ -50,8 +50,8 @@ function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"
 function colLetter(n){return String.fromCharCode(64+n);}
 function cell(sheet,coord){var c=DATA[sheet]&&DATA[sheet].cells; return c?c[coord]:undefined;}
 function chipClass(txt){ if(!txt) return ""; var t=String(txt);
-  if(/^Applied|Offer|Shortlisted|^P1$|^Yes$|^Strong$/.test(t)) return "ok";
-  if(/Not applied|^P2$|Partial|Test|Interview/.test(t)) return "warn";
+  if(/^Applied|Offer|Shortlisted|^P1$|^Yes$|^Strong$|^Mumbai\/Abroad$/.test(t)) return "ok";
+  if(/Not applied|^P2$|Partial|Test|Interview|^Maharashtra$/.test(t)) return "warn";
   if(/Skip|Rejected|Closed|Weak/.test(t)) return "bad";
   return "info"; }
 function chip(t){ if(!t) return ""; return '<span class="chip '+chipClass(t)+'">'+esc(t)+'</span>'; }
@@ -67,8 +67,8 @@ function trackerHTML(){
     var v=function(c){return cell("JAF Tracker",c+r);};
     var ctc=typeof v("G")==="number"?v("G"):null;
     var lakh=ctc==null?"":(ctc/100000).toFixed(2);
-    var good=(v("D")==="Yes"||v("E")==="Strong"), pr="";
-    if(ctc!=null){ pr = ctc<floor?"Skip? (below floor)":(ctc>=pref?(good?"P1":"P2"):(good?"P2":"P3")); }
+    var top=(v("D")==="Mumbai/Abroad"||v("E")==="Strong"), mid=(top||v("D")==="Maharashtra"), pr="";
+    if(ctc!=null){ pr = ctc<floor?"Skip? (below floor)":(ctc>=pref?(top?"P1":"P2"):(mid?"P2":"P3")); }
     var link=v("Q")?'<a href="'+esc(v("Q"))+'" target="_blank" rel="noopener">Open job</a>':"";
     html+="<tr>"+
      "<td><strong>"+esc(v("A"))+"</strong></td>"+
