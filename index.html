@@ -97,17 +97,33 @@ function trackerHTML(){
   }
   return html+"</tbody></table>";
 }
-function trackerRowFor(title){
-  var t=(DATA["JAF Tracker"]||{}).cells||{}; var want=String(title||"").trim().toLowerCase();
-  if(!want) return null;
-  for(var r=5;r<=69;r++){ if(String(t["B"+r]||"").trim().toLowerCase()===want) return r; }
-  return null;
+function nrm(x){ return String(x||"").toLowerCase().replace(/[^a-z0-9]+/g," ").replace(/\s+/g," ").trim(); }
+function toks(x){ return nrm(x).split(" ").filter(function(w){ return w && w.length>1 && w!=="and" && w!=="the"; }); }
+// Match an Applied row to its Tracker row. Titles drift on the portal ("SDE 1" -> "SDE-1"), so: exact
+// normalised title, then the company's only row, then the best word overlap within that company.
+function trackerRowFor(title,company){
+  var t=(DATA["JAF Tracker"]||{}).cells||{}, wantT=nrm(title), wantC=nrm(company), rows=[];
+  for(var r=5;r<=69;r++){ if(t["A"+r]) rows.push(r); }
+  for(var i=0;i<rows.length;i++){ if(nrm(t["B"+rows[i]])===wantT) return rows[i]; }
+  if(!wantC) return null;
+  var mine=rows.filter(function(r){ var a=nrm(t["A"+r]); return a===wantC||a.indexOf(wantC)===0||wantC.indexOf(a)===0; });
+  var want=toks(title), best=null, bestScore=0;
+  for(var k=0;k<mine.length;k++){
+    var have=toks(t["B"+mine[k]]), hit=0;
+    for(var w=0;w<want.length;w++){ if(have.indexOf(want[w])>=0) hit++; }
+    var score=want.length?hit/want.length:0;
+    if(score>bestScore){ bestScore=score; best=mine[k]; }
+  }
+  // one row for the company is enough on a partial word match, but never on no match at all:
+  // a wrong portal link in front of him before an interview is worse than an empty cell.
+  var need=(mine.length===1)?0.01:0.6;
+  return bestScore>=need?best:null;
 }
 function appliedHTML(){
   var heads=["Company","Job code","Title","Role type","Signed on (IST)","Portal stage","Next step","Pipeline on portal","Resume on portal","Prep notes - and what to say","Projects they may ask about","Portal link","SOP","Type"];
   var html="<table><thead><tr>"+heads.map(function(h){return "<th>"+esc(h)+"</th>";}).join("")+"</tr></thead><tbody>";
   for(var r=5;r<=95;r++){ if(!cell("Applied (Portal)","A"+r)) continue; var v=function(c){return cell("Applied (Portal)",c+r);};
-    var tr=trackerRowFor(v("C")), tv=function(c){return tr?cell("JAF Tracker",c+tr):"";};
+    var tr=trackerRowFor(v("C"),v("A")), tv=function(c){return tr?cell("JAF Tracker",c+tr):"";};
     var jl=tv("Q")?'<a href="'+esc(tv("Q"))+'" target="_blank" rel="noopener">Open job</a>':"";
     html+="<tr><td><strong>"+esc(v("A"))+"</strong></td><td>"+esc(v("B"))+"</td><td>"+esc(v("C"))+"</td>"+
      "<td>"+esc(tv("C"))+"</td>"+
