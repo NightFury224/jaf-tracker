@@ -108,11 +108,17 @@ function nkeys(o){ var n=0; for(var k in o) n++; return n; }
 function trackerRowFor(title,company){
   var t=(DATA["JAF Tracker"]||{}).cells||{}, wantT=nrm(title), wantC=nrm(company), rows=[], ex=[];
   for(var r=5;r<=69;r++){ if(t["A"+r]) rows.push(r); }
-  for(var i=0;i<rows.length;i++){ if(nrm(t["B"+rows[i]])===wantT) ex.push(rows[i]); }
+  // The exact-title shortcut is scoped to THIS COMPANY's rows (25 Oct 2026). It used to scan every
+  // row, so two companies sharing a generic title knocked each other out: "Associate" is both
+  // Strategy& and Alvarez & Marsal, "Analyst" is both o3 Capital and IQVIA, and all four rendered
+  // a blank Role type and Portal link here - the page Ved opens before an interview. Only a repeat
+  // WITHIN one company is genuinely undecidable. Keep in step with match() in tests/test_title_join.py.
+  var mine=wantC?rows.filter(function(r){ var a=nrm(t["A"+r]); return a===wantC||a.indexOf(wantC)===0||wantC.indexOf(a)===0; }):[];
+  var pool=mine.length?mine:rows;
+  for(var i=0;i<pool.length;i++){ if(nrm(t["B"+pool[i]])===wantT) ex.push(pool[i]); }
   if(ex.length===1) return ex[0];
-  if(ex.length>1) return null;                     // the same title on two rows: cannot tell them apart
+  if(ex.length>1) return null;                     // the same title twice at one company: cannot tell them apart
   if(!wantC) return null;
-  var mine=rows.filter(function(r){ var a=nrm(t["A"+r]); return a===wantC||a.indexOf(wantC)===0||wantC.indexOf(a)===0; });
   var want=toks(title), nw=nkeys(want), scored=[];
   for(var k=0;k<mine.length;k++){
     var have=toks(t["B"+mine[k]]), nh=nkeys(have), hit=0, small=(nw<=nh)?want:have, big=(nw<=nh)?have:want, all=true;
