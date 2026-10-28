@@ -158,13 +158,22 @@ function guideHTML(){
     html+="<tr><td><strong>"+esc(v("A"))+"</strong></td><td class='long'>"+esc(v("B"))+"</td><td class='long'>"+esc(v("C"))+"</td><td class='long'>"+esc(v("D"))+"</td></tr>"; }
   return html+"</tbody></table>";
 }
-var TABS=[["Tracker",trackerHTML],["Applied (Portal)",appliedHTML],["Resume Guide",guideHTML]], current=0;
+function budgetHTML(){
+  if(!DATA["JAF Budget"]) return "<p class='note' style='padding:16px'>The budget tab has not been built yet (run jaf-budget.py).</p>";
+  var v=function(c,r){return cell("JAF Budget",c+r);};
+  var html="<p class='note' style='padding:12px 2px'>"+esc(v("A",1))+"<br>"+esc(v("A",2))+"</p>";
+  html+="<table><thead><tr><th>"+esc(v("A",3))+"</th><th>"+esc(v("B",3))+"</th><th>"+esc(v("C",3))+"</th><th>"+esc(v("D",3))+"</th></tr></thead><tbody>";
+  for(var r=4;r<=40;r++){ var a=v("A",r); if(!a) continue; if(!v("B",r)){ html+="<tr><td colspan='4' class='note'>"+esc(a)+"</td></tr>"; continue; }
+    html+="<tr><td><strong>"+esc(a)+"</strong></td><td class='num'>"+esc(v("B",r))+"</td><td class='long'>"+esc(v("C",r))+"</td><td class='long'>"+esc(v("D",r))+"</td></tr>"; }
+  return html+"</tbody></table>";
+}
+var TABS=[["Tracker",trackerHTML],["Applied (Portal)",appliedHTML],["Resume Guide",guideHTML],["JAF Budget",budgetHTML]], current=0;
 function render(){
   var t=document.getElementById("tabs"); t.innerHTML="";
   TABS.forEach(function(x,i){var b=document.createElement("button"); b.id="tab"+i; b.type="button"; b.setAttribute("role","tab"); b.setAttribute("aria-selected",i===current); b.textContent=x[0]; b.onclick=function(){current=i;render();}; t.appendChild(b);});
   document.getElementById("view").innerHTML=TABS[current][1]();
   var a2=cell("Applied (Portal)","A2")||"";
-  var note = current===0 ? "Priority and CTC in lakh are calculated from the CTC and the rules in the sheet (1st preference 20 lakh and above, 2nd 12 lakh and above, 3rd below 12 lakh). Times are IST." : (current===1 ? "Open this right before a test or interview: the next step, what the round looks like, and which resume they are holding." : "A company's own page-length rule always overrides this table.");
+  var note = current===0 ? "Priority and CTC in lakh are calculated from the CTC and the rules in the sheet (1st preference 20 lakh and above, 2nd 12 lakh and above, 3rd below 12 lakh). Times are IST." : (current===1 ? "Open this right before a test or interview: the next step, what the round looks like, and which resume they are holding." : (current===2 ? "A company's own page-length rule always overrides this table." : "Counted on the Pi from the blog and the tracker - no Claude, no credits. The opened-JAF figure is a floor; the full working is in VOLUME_PROJECTION_2026-10-28.md."));
   document.getElementById("foot").textContent = (note+" "+a2).trim();
 }
 var last=JSON.stringify(DATA);
