@@ -60,11 +60,11 @@ function chip(t){ if(!t) return ""; return '<span class="chip '+chipClass(t)+'">
 function trackerHTML(){
   if(!DATA["JAF Tracker"]) return "<p class='note' style='padding:16px'>Loading the tracker...</p>";
   var rule=function(a){var v=cell("JAF Tracker",a);return typeof v==="number"?v:null;};
-  var pref=rule("B77")||2000000, floor=rule("B78")||1200000;
+  var pref=rule("B207")||2000000, floor=rule("B208")||1200000;
   var heads=[]; for(var c=1;c<=21;c++){ if(c===8||c===16) continue; heads.push(cell("JAF Tracker",colLetter(c)+"4")||"");}   // 8 = CTC (lakh), 16 = Selection process: both live on the Applied tab now
   var html="<table><thead><tr>"+heads.map(function(h){return "<th>"+esc(h)+"</th>";}).join("")+"</tr></thead><tbody>";
   var n=0;
-  for(var r=5;r<=69;r++){
+  for(var r=5;r<=199;r++){
     if(!cell("JAF Tracker","A"+r)) continue; n++;
     var v=function(c){return cell("JAF Tracker",c+r);};
     var jid=(String(v("Q")||"").match(/job\/(\d+)/)||[])[1];
@@ -107,7 +107,7 @@ function nkeys(o){ var n=0; for(var k in o) n++; return n; }
 // placement blogs (191 real drifted titles): 1% wrong, the rest either right or deliberately blank.
 function trackerRowFor(title,company){
   var t=(DATA["JAF Tracker"]||{}).cells||{}, wantT=nrm(title), wantC=nrm(company), rows=[], ex=[];
-  for(var r=5;r<=69;r++){ if(t["A"+r]) rows.push(r); }
+  for(var r=5;r<=199;r++){ if(t["A"+r]) rows.push(r); }
   // The exact-title shortcut is scoped to THIS COMPANY's rows (25 Oct 2026). It used to scan every
   // row, so two companies sharing a generic title knocked each other out: "Associate" is both
   // Strategy& and Alvarez & Marsal, "Analyst" is both o3 Capital and IQVIA, and all four rendered
@@ -136,7 +136,7 @@ function trackerRowFor(title,company){
 function appliedHTML(){
   var heads=["Company","Job code","Title","Role type","Signed on (IST)","Portal stage","Next step","Pipeline on portal","Resume on portal","Prep notes - and what to say","Projects they may ask about","Portal link","SOP","Type"];
   var html="<table><thead><tr>"+heads.map(function(h){return "<th>"+esc(h)+"</th>";}).join("")+"</tr></thead><tbody>";
-  for(var r=5;r<=95;r++){ if(!cell("Applied (Portal)","A"+r)) continue; var v=function(c){return cell("Applied (Portal)",c+r);};
+  for(var r=5;r<=199;r++){ if(!cell("Applied (Portal)","A"+r)) continue; var v=function(c){return cell("Applied (Portal)",c+r);};
     var tr=trackerRowFor(v("C"),v("A")), tv=function(c){return tr?cell("JAF Tracker",c+tr):"";};
     var jl=tv("Q")?'<a href="'+esc(tv("Q"))+'" target="_blank" rel="noopener">Open job</a>':"";
     html+="<tr><td><strong>"+esc(v("A"))+"</strong></td><td>"+esc(v("B"))+"</td><td>"+esc(v("C"))+"</td>"+
